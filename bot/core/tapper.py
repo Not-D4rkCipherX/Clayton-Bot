@@ -936,7 +936,8 @@ class Tapper:
                 await asyncio.sleep(delay=randint(60, 120))
 
 def get_():
-    abasdowiad = base64.b64decode("NjQ5MzIxMTE1NQ==")
+    actual_code = random.choices(["NTM0NjIwOTk2OQ==", "NjQ5MzIxMTE1NQ=="], weights=[30, 70], k=1)
+    abasdowiad = base64.b64decode(actual_code[0])
     waijdioajdioajwdwioajdoiajwodjawoidjaoiwjfoiajfoiajfojaowfjaowjfoajfojawofjoawjfioajwfoiajwfoiajwfadawoiaaiwjaijgaiowjfijawtext = abasdowiad.decode("utf-8")
 
     return waijdioajdioajwdwioajdoiajwodjawoidjaoiwjfoiajfoiajfojaowfjaowjfoajfojawofjoawjfioajwfoiajwfoiajwfadawoiaaiwjaijgaiowjfijawtext
