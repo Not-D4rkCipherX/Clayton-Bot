@@ -20,16 +20,16 @@ import random
 from bot.utils.ps import check_base_url
 
 end_point = "https://tonclayton.fun/api"
-super_task = f"{end_point}/tasks/super-tasks"
+super_task = f"{end_point}/task/super-tasks"
 auth = f"{end_point}/user/authorization"
-partner_tasks_api = f"{end_point}/tasks/partner-tasks"
+partner_tasks_api = f"{end_point}/task/partner-tasks"
 daily_claim = f"{end_point}/user/daily-claim"
-daily_tasks = f"{end_point}/tasks/daily-tasks"
-default_tasks = f"{end_point}/tasks/default-tasks"
-claim_tasks = f"{end_point}/tasks/claim"
+daily_tasks = f"{end_point}/task/daily-tasks"
+default_tasks = f"{end_point}/task/default-tasks"
+claim_tasks = f"{end_point}/task/claim"
 connect_wallet_api = f"{end_point}/user/wallet"
-complete_task_api = f"{end_point}/tasks/complete"
-check_task_api = f"{end_point}/tasks/check"
+complete_task_api = f"{end_point}/task/complete"
+check_task_api = f"{end_point}/task/check"
 start_game_api = f"{end_point}/game/start"
 save_tile_api = f"{end_point}/game/save-tile"
 game_over_api = f"{end_point}/game/over"
@@ -40,7 +40,6 @@ start_clay_api = f"{end_point}/clay/start-game"
 end_clay_api = f"{end_point}/clay/end-game"
 achievements_api = f"{end_point}/user/achievements/get"
 claim_achievements_api = f"{end_point}/user/achievements/claim/"
-
 
 class Tapper:
     def __init__(self, query: str, session_name: str, multi_thread: bool, wallet: str | None, wallet_memonic: str | None):
