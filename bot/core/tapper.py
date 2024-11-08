@@ -304,7 +304,7 @@ class Tapper:
 
             if response.status_code == 200:
                 logger.success(f"{self.session_name} | <green>Successfully claimed daily rewards!</green>")
-                response_json = await response.json()
+                response_json = response.json()
 
                 return response_json
             else:
@@ -489,9 +489,9 @@ class Tapper:
         http_client.headers['Origin'] = "https://tonclayton.fun"
         http_client.headers['Referer'] = "https://tonclayton.fun/games-layout/1024"
         try:
-            play_time = randint(80, 150)
-            start_delay = 15
-            end_delay = 25
+            play_time = randint(80, 140)
+            start_delay = 14
+            end_delay = 20
             i = 1
             j = 1
             current_high = 1
@@ -637,9 +637,9 @@ class Tapper:
         http_client.headers['Origin'] = "https://tonclayton.fun"
         http_client.headers['Referer'] = "https://tonclayton.fun/games-layout/stack"
         try:
-            play_time = randint(100, 150)
-            start_delay = 15
-            end_delay = 25
+            play_time = randint(110, 150)
+            start_delay = 14
+            end_delay = 20
             current_high = 1
             random_event = random.randint(start_delay, end_delay)
             while play_time > 0:
@@ -653,12 +653,13 @@ class Tapper:
                 random_event -= 1
                 play_time -= 1
 
-            last_score = 10*current_high + randint(0, 9)
+            last_score = 10*(current_high-1) + randint(0, 9)
 
             payload = {
                 "multiplier": 1,
                 "score": last_score,
             }
+            print(payload)
             is_over = http_client.post(game_en_api, json=payload)
             if is_over.status_code == 200:
                 earned = is_over.json()
