@@ -177,14 +177,14 @@ class Tapper:
         except Exception as error:
             logger.error(f"{self.session_name} | Proxy: {proxy} | Error: {error}")
 
-    async def connect_wallet(self, http_client: aiohttp.ClientSession):
+    async def connect_wallet(self, http_client: cloudscraper.CloudScraper):
         payload = {
             "wallet": self.wallet
         }
         try:
             logger.info(f"Attempt to connect wallet: <cyan>{self.wallet}</cyan>")
-            connect = await http_client.post(connect_wallet_api, json=payload)
-            if connect.status == 200:
+            connect = http_client.post(connect_wallet_api, json=payload)
+            if connect.status_code == 200:
                 logger.success(f"{self.session_name} | Successfully connected wallet: <cyan>{self.wallet}</cyan>")
                 return True
             else:
@@ -194,28 +194,29 @@ class Tapper:
             logger.error(f"{self.session_name} | Unknown error while connecting wallet: {e}")
             return False
 
-    async def get_super_tasks(self, http_client: aiohttp.ClientSession, retry=3):
+    async def get_super_tasks(self, http_client: cloudscraper.CloudScraper, retry=3):
         if retry == 0:
             return None
         try:
             logger.info(f"{self.session_name} | Attempt <red>{3-retry+1}</red>/<cyan>{3}</cyan> to get super task list...")
-            response = await http_client.get(url=super_task, timeout=aiohttp.ClientTimeout(10))
+            response = http_client.get(url=super_task)
             response.raise_for_status()
-            if response.status == 200:
+            if response.status_code == 200:
 
-                response_json = await response.json()
+                response_json = response.json()
 
                 return response_json
-            elif response.status == 500:
+            elif response.status_code == 500:
                 logger.info(f"{self.session_name} | Game server under maintain try again...")
                 await asyncio.sleep(random.randint(1, 5))
                 return await self.get_super_tasks(http_client, retry-1)
-            elif response.status == 429:
+            elif response.status_code == 429:
                 logger.info(f"{self.session_name} | Ratelimit exceeded try again in 60-120 seconds...")
                 delay = randint(60, 120)
                 await asyncio.sleep(delay)
                 return await self.get_super_tasks(http_client, retry - 1)
             else:
+
                 return None
 
 
@@ -231,25 +232,28 @@ class Tapper:
                 return None
 
 
-    async def auth(self, http_client: aiohttp.ClientSession, retry=3):
+    async def auth(self, http_client: cloudscraper.CloudScraper, retry=3):
+        http_client.headers['Origin'] = "https://tonclayton.fun"
         if retry == 0:
+            del http_client.headers['Origin']
             return None
         try:
             logger.info(f"{self.session_name} | Attempt <red>{3-retry+1}</red>/<cyan>{3}</cyan> to login...")
-            response = await http_client.post(url=auth, timeout=aiohttp.ClientTimeout(10))
+            response = http_client.post(url=auth)
             response.raise_for_status()
 
-            if response.status == 200:
+            if response.status_code == 200:
                 logger.success(f"{self.session_name} | <green>Successfully logged in!</green>")
-                response_json = await response.json()
-
+                response_json = response.json()
+                del http_client.headers['Origin']
                 return response_json
-            elif response.status == 500:
+            elif response.status_code == 500:
                 logger.info(f"{self.session_name} | Game server under maintain try again...")
                 await asyncio.sleep(random.randint(1, 6))
 
                 return await self.auth(http_client, retry-1)
             else:
+                del http_client.headers['Origin']
                 return None
 
 
@@ -262,18 +266,19 @@ class Tapper:
             else:
 
                 logger.error(f"{self.session_name} | Unknown error while logging in: {error}")
+                del http_client.headers['Origin']
                 return None
 
 
-    async def get_partner_tasks(self, http_client: aiohttp.ClientSession, retry=3):
+    async def get_partner_tasks(self, http_client: cloudscraper.CloudScraper, retry=3):
         if retry == 0:
             return None
         try:
             logger.info(f"{self.session_name} | <red>{3-retry+1}</red>/<cyan>{3}</cyan> to get partner task list...")
-            response = await http_client.get(url=partner_tasks_api, timeout=aiohttp.ClientTimeout(10))
+            response = http_client.get(url=partner_tasks_api)
             response.raise_for_status()
-            if response.status == 200:
-                response_json = await response.json()
+            if response.status_code == 200:
+                response_json = response.json()
 
                 return response_json
             else:
@@ -285,13 +290,13 @@ class Tapper:
             logger.error(f"{self.session_name} | Unknown error while getting parter tasks: {error}")
             return None
 
-    async def claim_daily_rw(self, http_client: aiohttp.ClientSession):
+    async def claim_daily_rw(self, http_client: cloudscraper.CloudScraper):
         try:
             logger.info(f"{self.session_name} | Claiming daily rewards...")
-            response = await http_client.post(url=daily_claim, timeout=aiohttp.ClientTimeout(10))
+            response = http_client.post(url=daily_claim)
             response.raise_for_status()
 
-            if response.status == 200:
+            if response.status_code == 200:
                 logger.success(f"{self.session_name} | <green>Successfully claimed daily rewards!</green>")
                 response_json = await response.json()
 
@@ -303,15 +308,15 @@ class Tapper:
             logger.error(f"{self.session_name} | Unknown error while claiming daily rewards: {error}")
             return None
 
-    async def get_daily_task(self, http_client: aiohttp.ClientSession, retry=3):
+    async def get_daily_task(self, http_client: cloudscraper.CloudScraper, retry=3):
         if retry == 0:
             return None
         try:
             logger.info(f"{self.session_name} | Attempt <red>{3-retry+1}</red>/<cyan>{3}</cyan> to get daily tasks...")
-            response = await http_client.get(url=daily_tasks, timeout=aiohttp.ClientTimeout(10))
+            response = http_client.get(url=daily_tasks)
 
-            if response.status == 200:
-                response_json = await response.json()
+            if response.status_code == 200:
+                response_json = response.json()
                 return response_json
             else:
                 await asyncio.sleep(10)
@@ -321,15 +326,15 @@ class Tapper:
             logger.error(f"{self.session_name} | Unknown error while claiming daily rewards: {error}")
             return None
 
-    async def get_default_task(self, http_client: aiohttp.ClientSession, retry=3):
+    async def get_default_task(self, http_client: cloudscraper.CloudScraper, retry=3):
         if retry == 0:
             return None
         try:
             logger.info(f"{self.session_name} | <red>{3-retry+1}</red>/<cyan>{3}</cyan> to get default tasks...")
-            response = await http_client.get(url=default_tasks, timeout=aiohttp.ClientTimeout(10))
+            response = http_client.get(url=default_tasks)
 
-            if response.status == 200:
-                response_json = await response.json()
+            if response.status_code == 200:
+                response_json = response.json()
 
                 return response_json
             else:
@@ -340,89 +345,101 @@ class Tapper:
             logger.error(f"{self.session_name} | Unknown error while claiming daily rewards: {error}")
             return None
 
-    async def claim_task(self, task, http_client: aiohttp.ClientSession, retry=3):
+    async def claim_task(self, task, http_client: cloudscraper.CloudScraper, retry=3):
         if retry == 0:
+            del http_client.headers['Origin']
             return False
+        http_client.headers['Origin'] = "https://tonclayton.fun"
         payload = {
             "task_id": task['task_id']
         }
         try:
             logger.info(f"{self.session_name} | Attempt to claim task: <cyan>{task['task']['title']}</cyan>")
-            claim = await http_client.post(claim_tasks, json=payload)
-            if claim.status == 200:
+            claim = http_client.post(claim_tasks, json=payload)
+            if claim.status_code == 200:
                 logger.success(f"{self.session_name} | <green>Successfully claimed task: {task['task']['title']}</green>")
                 return True
-            elif claim.status == 500:
+            elif claim.status_code == 500:
                 logger.info(f"{self.session_name} | Game server under maintain try again - Attempt {3-retry+1}")
                 await asyncio.sleep(random.randint(1, 6))
                 return await self.claim_task(task, http_client, retry-1)
-            elif claim.status == 429:
+            elif claim.status_code == 429:
                 logger.info(f"{self.session_name} | Ratelimit exceeded try again in 60-120 seconds...")
                 delay = randint(60, 120)
                 await asyncio.sleep(delay)
                 return await self.claim_task(task, http_client, retry - 1)
             else:
+                del http_client.headers['Origin']
                 return False
         except Exception as e:
             logger.error(f"{self.session_name} | Unknown error while claiming {task['task']['title']}: {e}")
+            del http_client.headers['Origin']
             return False
 
-    async def complete_task(self, task, http_client: aiohttp.ClientSession, retry=3):
+    async def complete_task(self, task, http_client: cloudscraper.CloudScraper, retry=3):
         if retry == 0:
+            del http_client.headers['Origin']
             return False
+        http_client.headers['Origin'] = "https://tonclayton.fun"
         payload = {
             "task_id": task['task_id']
         }
         try:
             logger.info(f"{self.session_name} | Attempt to complete task: <cyan>{task['task']['title']}</cyan>")
-            claim = await http_client.post(complete_task_api, json=payload)
-            if claim.status == 200:
+            claim = http_client.post(complete_task_api, json=payload)
+            if claim.status_code == 200:
                 logger.success(f"{self.session_name} | <green>Successfully completed task: {task['task']['title']}</green>")
                 return True
-            elif claim.status == 500:
+            elif claim.status_code == 500:
                 logger.info(f"{self.session_name} | Game server under maintain try again - Attempt {3-retry+1}")
                 await asyncio.sleep(random.randint(1, 6))
                 return await self.complete_task(task, http_client, retry-1)
-            elif claim.status == 429:
+            elif claim.status_code == 429:
                 logger.info(f"{self.session_name} | Ratelimit exceeded try again in 60-120 seconds...")
                 delay = randint(60, 120)
                 await asyncio.sleep(delay)
                 return await self.complete_task(task, http_client, retry - 1)
             else:
+                del http_client.headers['Origin']
                 return False
         except Exception as e:
             logger.error(f"{self.session_name} | Unknown error while completing {task['task']['title']}: {e}")
+            del http_client.headers['Origin']
             return False
 
-    async def check_task(self, task, http_client: aiohttp.ClientSession, retry=3):
+    async def check_task(self, task, http_client: cloudscraper.CloudScraper, retry=3):
         if retry == 0:
+            del http_client.headers['Origin']
             return False
         payload = {
             "task_id": task['task_id']
         }
+        http_client.headers['Origin'] = "https://tonclayton.fun"
         try:
             logger.info(f"{self.session_name} | Attempt to check task: <cyan>{task['task']['title']}</cyan>")
-            claim = await http_client.post(check_task_api, json=payload)
-            res = await claim.json()
-            if claim.status == 200 and res['is_completed']:
+            claim = http_client.post(check_task_api, json=payload)
+            res = claim.json()
+            if claim.status_code == 200 and res['is_completed']:
                 logger.success(
                     f"{self.session_name} | <green>Successfully completed task: {task['task']['title']}</green>")
                 return True
-            elif claim.status == 500:
+            elif claim.status_code == 500:
                 logger.info(f"{self.session_name} | Game server under maintain try again - Attempt {3-retry+1}")
                 await asyncio.sleep(random.randint(1, 6))
                 return await self.check_task(task, http_client, retry-1)
-            elif claim.status == 429:
+            elif claim.status_code == 429:
                 logger.info(f"{self.session_name} | Ratelimit exceeded try again in 60-120 seconds...")
                 delay = randint(60, 120)
                 await asyncio.sleep(delay)
                 return await self.check_task(task, http_client, retry - 1)
             else:
+                del http_client.headers['Origin']
                 return False
         except Exception as e:
             logger.error(f"{self.session_name} | Unknown error while completing {task['task']['title']}: {e}")
+            del http_client.headers['Origin']
             return False
-    async def complete_section_tasks(self, http_client: aiohttp.ClientSession, tasks):
+    async def complete_section_tasks(self, http_client: cloudscraper.CloudScraper, tasks):
         for task in tasks:
             if task['task_id'] in self.black_list or task['is_claimed']:
                 continue
@@ -443,14 +460,14 @@ class Tapper:
                 await asyncio.sleep(random.randint(3, 6))
 
 
-    async def save_tile(self, http_client: aiohttp.ClientSession, tile, gameid):
+    async def save_tile(self, http_client: cloudscraper.CloudScraper, tile, gameid):
         payload = {
             "maxTile": int(tile),
             "session_id": gameid
         }
         try:
-            save_tile = await http_client.post(save_tile_api, json=payload)
-            if save_tile.status == 200:
+            save_tile = http_client.post(save_tile_api, json=payload)
+            if save_tile.status_code == 200:
                 # print(await save_tile.text())
                 logger.info(f"{self.session_name} | <cyan>[1024]</cyan> - Max tile updated to <cyan>{tile}</cyan>!")
                 return True
@@ -462,7 +479,8 @@ class Tapper:
             logger.error(f"{self.session_name} | Unknown error while playing 1024: {e}")
             return False
 
-    async def proceed_1024(self, gameid, http_client: aiohttp.ClientSession):
+    async def proceed_1024(self, gameid, http_client: cloudscraper.CloudScraper):
+        http_client.headers['Origin'] = "https://tonclayton.fun"
         http_client.headers['Referer'] = "https://tonclayton.fun/games-layout/1024"
         try:
             play_time = randint(80, 150)
@@ -495,36 +513,41 @@ class Tapper:
                 "session_id": str(gameid)
             }
             # print(payload)
-            is_over = await http_client.post(game_over_api, json=payload)
-            if is_over.status == 200:
-                earned = await is_over.json()
+            is_over = http_client.post(game_over_api, json=payload)
+            if is_over.status_code == 200:
+                earned = is_over.json()
                 logger.success(f"{self.session_name} | <cyan>[1024]</cyan> - <green>Completed 1024 game - earned <cyan>{earned['earn']}</cyan> Clay and <red>{earned['xp_earned']}</red> XP!</green>")
+                del http_client.headers['Origin']
                 return True
             else:
                 # print(await is_over.text())
                 # print(is_over.status)
+                del http_client.headers['Origin']
                 return False
 
         except Exception as e:
             logger.error(f"{self.session_name} | Unknown error while playing 1024: {e}")
+            del http_client.headers['Origin']
             return False
 
-    async def play_1024(self, http_client: aiohttp.ClientSession, retry=3):
+    async def play_1024(self, http_client: cloudscraper.CloudScraper, retry=3):
         if retry == 0:
+            del http_client.headers['Origin']
             return False
+        http_client.headers['Origin'] = "https://tonclayton.fun"
         http_client.headers['Referer'] = "https://tonclayton.fun/games"
         try:
-            start = await http_client.post(start_game_api)
-            if start.status == 200:
-                gameid = await start.json()
+            start = http_client.post(start_game_api)
+            if start.status_code == 200:
+                gameid = start.json()
                 logger.info(f"{self.session_name} | <cyan>[1024]</cyan> - Started successfully!")
                 return await self.proceed_1024(gameid['session_id'], http_client)
-            elif start.status == 429:
+            elif start.status_code == 429:
                 logger.info(f"{self.session_name} | <cyan>[1024]</cyan> - Ratelimit exceeded retrying in 2-3 minutes")
                 sleep_ = randint(120, 180)
                 await asyncio.sleep(sleep_)
                 return await self.play_1024(http_client, retry-1)
-            elif start.status == 500:
+            elif start.status_code == 500:
                 logger.info(f"{self.session_name} | <cyan>[1024]</cyan> - Server error, Retry in 15-30 seconds")
                 sleep_ = randint(15, 30)
                 await asyncio.sleep(sleep_)
@@ -532,15 +555,16 @@ class Tapper:
 
         except Exception as e:
             logger.error(f"{self.session_name} | Unknown error while playing 1024: {e}")
+            del http_client.headers['Origin']
             return False
 
-    async def update_game(self, http_client: aiohttp.ClientSession, score):
+    async def update_game(self, http_client: cloudscraper.CloudScraper, score):
         payload = {
             "score": int(score)
         }
         try:
-            update = await http_client.post(update_score, json=payload)
-            if update.status == 200:
+            update = http_client.post(update_score, json=payload)
+            if update.status_code == 200:
                 logger.info(f"{self.session_name} | <cyan>[Stack]</cyan> - Score updated to <cyan>{score}</cyan>!")
                 return True
             else:
@@ -552,12 +576,12 @@ class Tapper:
             return False
 
 
-    async def claim_achievement(self, http_client: aiohttp.ClientSession, section, level):
+    async def claim_achievement(self, http_client: cloudscraper.CloudScraper, section, level):
         url = claim_achievements_api+section+"/"+str(level)
         try:
-            claim = await http_client.post(url)
-            if claim.status == 200:
-                claimed = await claim.json()
+            claim = http_client.post(url)
+            if claim.status_code == 200:
+                claimed = claim.json()
                 logger.success(f"{self.session_name} | <green>Claimed lvl{level} of {section} achievement - Earned: <cyan>{claimed['reward']}</cyan></green>")
             else:
                 return None
@@ -565,7 +589,7 @@ class Tapper:
             logger.error(f"{self.session_name} | Unknown error while claiming achievement: {e}")
             return None
 
-    async def check_and_claim_achievements(self, http_client: aiohttp.ClientSession, achievements):
+    async def check_and_claim_achievements(self, http_client: cloudscraper.CloudScraper, achievements):
         for reward in achievements['friends']:
             if reward['is_completed'] and reward['is_rewarded'] is False:
                 await self.claim_achievement(http_client, "friends", reward['level'])
@@ -577,18 +601,21 @@ class Tapper:
         for reward in achievements['stars']:
             if reward['is_completed'] and reward['is_rewarded'] is False:
                 await self.claim_achievement(http_client, "stars", reward['level'])
-    async def get_achievements(self, http_client: aiohttp.ClientSession, retry=3):
+    async def get_achievements(self, http_client: cloudscraper.CloudScraper, retry=3):
         if retry == 0:
+            del http_client.headers['Origin']
             return None
+        http_client.headers['Origin'] = "https://tonclayton.fun"
         http_client.headers['Referer'] = "https://tonclayton.fun/earn/achievements"
 
         try:
             logger.info(f"{self.session_name} | Attempt {3-retry+1} to get achievements...")
-            response = await http_client.post(url=achievements_api, timeout=aiohttp.ClientTimeout(10))
+            response = http_client.post(url=achievements_api)
 
-            if response.status == 200:
-                data = await response.json()
+            if response.status_code == 200:
+                data = response.json()
                 await self.check_and_claim_achievements(http_client,data)
+                del http_client.headers['Origin']
                 return True
             else:
                 # print(await response.text())
@@ -597,9 +624,11 @@ class Tapper:
 
         except Exception as error:
             logger.error(f"{self.session_name} | Unknown error while claiming daily rewards: {error}")
+            del http_client.headers['Origin']
             return None
 
-    async def proceed_stack(self, http_client: aiohttp.ClientSession):
+    async def proceed_stack(self, http_client: cloudscraper.CloudScraper):
+        http_client.headers['Origin'] = "https://tonclayton.fun"
         http_client.headers['Referer'] = "https://tonclayton.fun/games-layout/stack"
         try:
             play_time = randint(100, 150)
@@ -624,45 +653,52 @@ class Tapper:
                 "multiplier": 1,
                 "score": last_score,
             }
-            is_over = await http_client.post(game_en_api, json=payload)
-            if is_over.status == 200:
-                earned = await is_over.json()
+            is_over = http_client.post(game_en_api, json=payload)
+            if is_over.status_code == 200:
+                earned = is_over.json()
                 logger.success(
                     f"{self.session_name} | <cyan>[Stack]</cyan> - <green>Completed Stack game - earned <cyan>{earned['earn']}</cyan> Clay and <red>{earned['xp_earned']}</red> XP!</green>")
+                del http_client.headers['Origin']
                 return True
-            elif is_over.status == 500:
+            elif is_over.status_code == 500:
                 # print(await is_over.text())
                 json_data = await is_over.json()
-                logger.info(f"{self.session_name} | Server error (not error from bot!) - Message: {json_data['error']}.")
+                logger.info(f"{self.session_name} | <cyan>[Stack]</cyan> - Server error (not error from bot!) - Message: {json_data['error']}.")
+                del http_client.headers['Origin']
                 return False
-            elif is_over.status == 429:
-                logger.info(f"{self.session_name} | Ratelimit exceeded, Try again next round.")
+            elif is_over.status_code == 429:
+                logger.info(f"{self.session_name} | <cyan>[Stack]</cyan> - Ratelimit exceeded, Try again next round.")
+                del http_client.headers['Origin']
                 return False
             else:
-                print(await is_over.text())
-                print(is_over.status)
+                print(is_over.text)
+                print(is_over.status_code)
+                del http_client.headers['Origin']
                 return False
 
         except Exception as e:
-            logger.error(f"{self.session_name} | Unknown error while playing 1024: {e}")
+            logger.error(f"{self.session_name} | Unknown error while playing stack: {e}")
+            del http_client.headers['Origin']
             return False
 
-    async def play_stack(self, http_client: aiohttp.ClientSession, retry=3):
+    async def play_stack(self, http_client: cloudscraper.CloudScraper, retry=3):
         if retry == 0:
+            del http_client.headers['Origin']
             return False
+        http_client.headers['Origin'] = "https://tonclayton.fun"
         http_client.headers['Referer'] = "https://tonclayton.fun/games-layout/stack"
         try:
-            start = await http_client.post(start_stack_api)
-            if start.status == 200:
-                gameid = await start.json()
+            start = http_client.post(start_stack_api)
+            if start.status_code == 200:
+                gameid = start.json()
                 logger.info(f"{self.session_name} | <cyan>[Stack]</cyan> - Started game <cyan>{gameid['session_id']}</cyan> successfully!")
                 return await self.proceed_stack(http_client)
-            elif start.status == 429:
+            elif start.status_code == 429:
                 logger.info(f"{self.session_name} | <cyan>[Stack]</cyan> - Ratelimit exceeded retrying in 2-3 minutes")
                 sleep_ = randint(120, 180)
                 await asyncio.sleep(sleep_)
                 return await self.play_stack(http_client, retry-1)
-            elif start.status == 500:
+            elif start.status_code == 500:
                 logger.info(f"{self.session_name} | <cyan>[Stack]</cyan> - Server error, Retry in 15-30 seconds")
                 sleep_ = randint(15, 30)
                 await asyncio.sleep(sleep_)
@@ -670,6 +706,7 @@ class Tapper:
 
         except Exception as e:
             logger.error(f"{self.session_name} | Unknown error while playing stack: {e}")
+            del http_client.headers['Origin']
             return False
 
     async def proceed_clay(self, http_client: aiohttp.ClientSession):
@@ -753,6 +790,7 @@ class Tapper:
         headers['Sec-Ch-Ua'] = f'"Chromium";v="{chrome_ver}", "Android WebView";v="{chrome_ver}", "Not.A/Brand";v="99"'
         http_client = CloudflareScraper(headers=headers, connector=proxy_conn)
         session = cloudscraper.create_scraper()
+        session.headers = headers.copy()
         if proxy:
             proxy_check = await self.check_proxy(http_client=http_client, proxy=proxy)
             if proxy_check:
@@ -788,24 +826,24 @@ class Tapper:
                         access_token_created_time = time()
                         token_live_time = randint(5000, 7000)
 
-                    http_client.headers['Init-Data'] = self.auth_token
-                    http_client.headers['Referer'] = "https://tonclayton.fun/"
+                    session.headers['Init-Data'] = self.auth_token
+                    session.headers['Referer'] = "https://tonclayton.fun/"
 
-                    super_task = await self.get_super_tasks(http_client)
+                    super_task = await self.get_super_tasks(session)
                     if super_task is None:
                         logger.warning(f"{self.session_name} | Failed to get super tasks!")
                         await http_client.close()
                         session.close()
                         return
 
-                    auth_data = await self.auth(http_client)
+                    auth_data = await self.auth(session)
                     if auth_data is None:
                         logger.warning(f"{self.session_name} | Failed to login!")
                         await http_client.close()
                         session.close()
                         return
 
-                    partner_tasks = await self.get_partner_tasks(http_client)
+                    partner_tasks = await self.get_partner_tasks(session)
 
                     can_claim_daily = auth_data['dailyReward']['can_claim_today']
                     user = auth_data['user']
@@ -836,11 +874,11 @@ class Tapper:
                         self.wallet_connected = True
 
                     if can_claim_daily:
-                        await self.claim_daily_rw(http_client)
+                        await self.claim_daily_rw(session)
 
                     if settings.AUTO_CONNECT_WALLET and self.wallet is not None:
                         if self.wallet_connected is False:
-                            if await self.connect_wallet(http_client):
+                            if await self.connect_wallet(session):
                                 with open('used_wallets.json', 'r') as file:
                                     wallets = json.load(file)
                                 wallets.update({
@@ -868,12 +906,12 @@ class Tapper:
                                 if tickets <= 0:
                                     break
                                 if game == "1024":
-                                    a = await self.play_1024(http_client)
+                                    a = await self.play_1024(session)
                                     if a is False:
                                         logger.warning(f"{self.session_name} | Failed to complete game: <yellow>{game}</yellow>!")
                                     tickets -= 1
                                 elif game == "stack":
-                                    a = await self.play_stack(http_client)
+                                    a = await self.play_stack(session)
                                     if a is False:
                                         logger.warning(
                                             f"{self.session_name} | Failed to complete game: <yellow>{game}</yellow>!")
@@ -891,26 +929,26 @@ class Tapper:
 
 
                     if settings.AUTO_TASK:
-                        http_client.headers['Referer'] = "https://tonclayton.fun/earn"
+                        session.headers['Referer'] = "https://tonclayton.fun/earn"
 
-                        await self.get_achievements(http_client)
+                        await self.get_achievements(session)
 
-                        daily_tasks = await self.get_daily_task(http_client)
+                        daily_tasks = await self.get_daily_task(session)
                         if daily_tasks is not None:
-                            await self.complete_section_tasks(http_client, daily_tasks)
+                            await self.complete_section_tasks(session, daily_tasks)
 
 
                         if partner_tasks is not None:
-                            await self.complete_section_tasks(http_client, partner_tasks)
+                            await self.complete_section_tasks(session, partner_tasks)
 
-                        defaultt_tasks = await self.get_default_task(http_client)
+                        defaultt_tasks = await self.get_default_task(session)
 
                         if defaultt_tasks is not None:
-                            await self.complete_section_tasks(http_client, defaultt_tasks)
+                            await self.complete_section_tasks(session, defaultt_tasks)
 
                         logger.success(f"{self.session_name} | <green>All tasks completed!</green>")
 
-                        http_client.headers['Referer'] = 'https://tonclayton.fun/'
+                        session.headers['Referer'] = 'https://tonclayton.fun/'
 
 
                     logger.info(f"----<cyan>Completed {self.session_name}</cyan>----")
