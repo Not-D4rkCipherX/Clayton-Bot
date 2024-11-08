@@ -148,7 +148,7 @@ class Tapper:
                 except (Unauthorized, UserDeactivated, AuthKeyUnregistered):
                     raise InvalidSession(self.session_name)
             try:
-                await self.tg_client.join_chat("tonclayton")
+                await self.tg_client.join_chat("clayton")
                 logger.success(f"{self.session_name} | <green>Joined clayton channel successfully</green>")
             except Exception as e:
                 logger.error(f"{self.session_name} | <red>Join TG channel failed - Error: {e}</red>")
