@@ -659,7 +659,7 @@ class Tapper:
                 "multiplier": 1,
                 "score": last_score,
             }
-            print(payload)
+            # print(payload)
             is_over = http_client.post(game_en_api, json=payload)
             if is_over.status_code == 200:
                 earned = is_over.json()
