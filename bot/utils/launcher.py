@@ -205,13 +205,13 @@ async def run_tasks_query(query_ids: list[str]):
 
         wallets_data = get_wallets()
         wallets = list(get_wallets().keys())
-        if len(wallets) < len(tg_clients):
+        if len(wallets) < len(query_ids):
             logger.warning(f"<yellow>Wallet not enough for all accounts please generate <red>{len(tg_clients)-len(wallets)}</red> wallets more!</yellow>")
             await asyncio.sleep(3)
 
         wallet_index = 0
         tasks = []
-        for tg_client in tg_clients:
+        for query in query_ids:
             if wallet_index >= len(wallets):
                 wallet_i = None
             else:
@@ -220,7 +220,7 @@ async def run_tasks_query(query_ids: list[str]):
             tasks.append(
                 asyncio.create_task(
                     run_query_tapper(
-                        query=tg_client,
+                        query=query,
                         proxy=next(proxies_cycle) if proxies_cycle else None,
                         name=f"Account{next(name_cycle)}",
                         wallet=wallet_i,
