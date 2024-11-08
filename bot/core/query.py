@@ -453,7 +453,7 @@ class Tapper:
             claim = await http_client.post(url)
             if claim.status == 200:
                 claimed = await claim.json()
-                logger.success(f"{self.session_name} | <green>Claimed lvl{level} of {section} achievement - Earned: <cyan>{claimed['reward']}</cyam></green>")
+                logger.success(f"{self.session_name} | <green>Claimed lvl{level} of {section} achievement - Earned: <cyan>{claimed['reward']}</cyan></green>")
             else:
                 return None
         except Exception as e:
@@ -773,12 +773,12 @@ class Tapper:
                                         logger.warning(
                                             f"{self.session_name} | Failed to complete game: <yellow>{game}</yellow>!")
                                     tickets -= 1
-                                elif game == "clayball":
-                                    a = await self.play_clay(http_client)
-                                    if a is False:
-                                        logger.warning(
-                                            f"{self.session_name} | Failed to complete game: <yellow>{game}</yellow>!")
-                                    tickets -= 1
+                                # elif game == "clayball":
+                                #     a = await self.play_clay(http_client)
+                                #     if a is False:
+                                #         logger.warning(
+                                #             f"{self.session_name} | Failed to complete game: <yellow>{game}</yellow>!")
+                                #     tickets -= 1
                                 else:
                                     logger.warning(f"{self.session_name} | <yellow>Unknown game: {game}</yellow>")
 
