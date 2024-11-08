@@ -72,7 +72,7 @@ Before you begin, make sure you have the following installed:
 You can download the [**repository**](https://github.com/vanhbakaa/Clayton) by cloning it to your system and installing the necessary dependencies:
 ```shell
 git clone https://github.com/vanhbakaa/Clayton.git
-cd Paws
+cd Clayton
 ```
 
 Then you can do automatic installation by typing:
