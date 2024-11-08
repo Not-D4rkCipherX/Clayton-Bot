@@ -7,6 +7,8 @@ session = cloudscraper.create_scraper()
 
 baseUrl = "https://tonclayton.fun/api"
 pattern = r'\b\w+\s*=\s*"([^"]+)"'
+
+version = "1.0.5"
 def get_main_js_format(base_url):
     try:
         response = session.get(base_url)
@@ -49,12 +51,20 @@ def check_base_url():
         if settings.ADVANCED_ANTI_DETECTION:
             r = session.get(
                 "https://raw.githubusercontent.com/vanhbakaa/nothing/refs/heads/main/clayton")
-            js_ver = r.text.strip()
+            js_ver = r.text.strip().split(",")[0]
             # print(main_js_formats)
+
+            if r.text.strip().split(",")[1] != version:
+                logger.warning("Detected version change please update the bot for safety")
+                return False
+
             for js in main_js_formats:
                 if js_ver in js:
                     logger.success(f"<green>No change in js file: {js_ver}</green>")
                     return True
+
+            if r.text.strip().split(",")[1] != version:
+                logger.warning("Detected version change please update the bot for safety")
 
             return False
         # print(main_js_formats)
