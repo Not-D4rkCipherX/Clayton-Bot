@@ -181,8 +181,14 @@ class Tapper:
 
 
         except Exception as error:
-            logger.error(f"{self.session_name} | Unknown error while getting parter tasks: {error}")
-            return None
+            if "Too Many Requests" in str(error):
+                logger.info(f"{self.session_name} | Ratelimit exceeded try again in 60-120 seconds...")
+                delay = randint(60, 120)
+                await asyncio.sleep(delay)
+                return await self.get_super_tasks(http_client, retry - 1)
+            else:
+                logger.error(f"{self.session_name} | Unknown error while getting parter tasks: {error}")
+                return None
 
     async def claim_daily_rw(self, http_client: cloudscraper.CloudScraper):
         try:
