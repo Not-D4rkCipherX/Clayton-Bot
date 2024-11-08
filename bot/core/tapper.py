@@ -29,7 +29,7 @@ from bot.utils.ps import check_base_url
 end_point = "https://tonclayton.fun/api"
 super_task = f"{end_point}/task/super-tasks"
 auth = f"{end_point}/user/authorization"
-partner_tasks_api = f"{end_point}/tasks/partner-tasks"
+partner_tasks_api = f"{end_point}/task/partner-tasks"
 daily_claim = f"{end_point}/user/daily-claim"
 daily_tasks = f"{end_point}/task/daily-tasks"
 default_tasks = f"{end_point}/task/default-tasks"
