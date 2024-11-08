@@ -135,6 +135,8 @@ class Tapper:
             logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Unknown error during Authorization: "
                          f"{error}")
             await asyncio.sleep(delay=3)
+            if self.tg_client.is_connected:
+                await self.tg_client.disconnect()
             return None
 
     async def join_channel(self):
@@ -159,6 +161,8 @@ class Tapper:
         except Exception as error:
             logger.error(f"<light-yellow>{self.session_name}</light-yellow> | Unknown error during Authorization: "
                          f"{error}")
+            if self.tg_client.is_connected:
+                await self.tg_client.disconnect()
             await asyncio.sleep(delay=3)
     async def check_proxy(self, http_client: aiohttp.ClientSession, proxy: Proxy) -> None:
         try:
