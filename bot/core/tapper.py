@@ -662,7 +662,7 @@ class Tapper:
                 return True
             elif is_over.status_code == 500:
                 # print(await is_over.text())
-                json_data = await is_over.json()
+                json_data = is_over.json()
                 logger.info(f"{self.session_name} | <cyan>[Stack]</cyan> - Server error (not error from bot!) - Message: {json_data['error']}.")
                 del http_client.headers['Origin']
                 return False
