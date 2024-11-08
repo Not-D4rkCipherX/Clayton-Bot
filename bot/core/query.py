@@ -19,17 +19,17 @@ from random import randint
 import random
 from bot.utils.ps import check_base_url
 
-end_point = "https://tonclayton.fun/api"
-super_task = f"{end_point}/task/super-tasks"
+end_point = "https://tonclayton.fun/api/cc82f330-6a6d-4deb-a15b-6a332a67ffa7"
+super_task = f"{end_point}/tasks/super-tasks"
 auth = f"{end_point}/user/authorization"
-partner_tasks_api = f"{end_point}/task/partner-tasks"
+partner_tasks_api = f"{end_point}/tasks/partner-tasks"
 daily_claim = f"{end_point}/user/daily-claim"
-daily_tasks = f"{end_point}/task/daily-tasks"
-default_tasks = f"{end_point}/task/default-tasks"
-claim_tasks = f"{end_point}/task/claim"
+daily_tasks = f"{end_point}/tasks/daily-tasks"
+default_tasks = f"{end_point}/tasks/default-tasks"
+claim_tasks = f"{end_point}/tasks/claim"
 connect_wallet_api = f"{end_point}/user/wallet"
-complete_task_api = f"{end_point}/task/complete"
-check_task_api = f"{end_point}/task/check"
+complete_task_api = f"{end_point}/tasks/complete"
+check_task_api = f"{end_point}/tasks/check"
 start_game_api = f"{end_point}/game/start"
 save_tile_api = f"{end_point}/game/save-tile"
 game_over_api = f"{end_point}/game/over"
@@ -718,6 +718,8 @@ class Tapper:
                     else:
                         logger.warning(
                             "<yellow>Detected api change! Stopped the bot for safety. Contact me here to update the bot: https://t.me/vanhbakaaa</yellow>")
+
+
 
                 if can_run:
                     if time() - access_token_created_time >= token_live_time:
