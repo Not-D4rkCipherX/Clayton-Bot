@@ -360,9 +360,9 @@ class Tapper:
     async def proceed_1024(self, gameid, http_client: aiohttp.ClientSession):
         http_client.headers['Referer'] = "https://tonclayton.fun/games-layout/1024"
         try:
-            play_time = randint(60, 80)
-            start_delay = 4
-            end_delay = 7
+            play_time = randint(100, 150)
+            start_delay = 15
+            end_delay = 25
             i = 1
             j = 1
             current_high = 1
@@ -497,11 +497,11 @@ class Tapper:
     async def proceed_stack(self, http_client: aiohttp.ClientSession):
         http_client.headers['Referer'] = "https://tonclayton.fun/games-layout/stack"
         try:
-            play_time = randint(100, 120)
+            play_time = randint(100, 150)
             start_delay = 15
-            end_delay = 20
+            end_delay = 25
             current_high = 1
-            random_event = 0
+            random_event = random.randint(start_delay, end_delay)
             while play_time > 0:
                 if random_event <= 0:
                     random_event = random.randint(start_delay, end_delay)
@@ -570,8 +570,8 @@ class Tapper:
     async def proceed_clay(self, http_client: aiohttp.ClientSession):
         try:
             play_time = randint(110, 150)
-            start_delay = 2
-            end_delay = 5
+            start_delay = 3
+            end_delay = 6
             current_pts = 0
             random_event = 0
             while play_time > 0:
