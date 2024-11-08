@@ -198,7 +198,7 @@ class Tapper:
 
             if response.status_code == 200:
                 logger.success(f"{self.session_name} | <green>Successfully claimed daily rewards!</green>")
-                response_json = await response.json()
+                response_json = response.json()
 
                 return response_json
             else:
@@ -552,7 +552,7 @@ class Tapper:
                 random_event -= 1
                 play_time -= 1
 
-            last_score = 10 * current_high + randint(0, 9)
+            last_score = 10 * (current_high-1) + randint(0, 9)
 
             payload = {
                 "multiplier": 1,
