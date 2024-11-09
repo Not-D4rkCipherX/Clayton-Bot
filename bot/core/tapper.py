@@ -1,30 +1,31 @@
 import asyncio
+import base64
 import json
+import random
 import sys
 import traceback
 from itertools import cycle
+from random import randint
 from time import time
 from urllib.parse import unquote
+
 import aiohttp
+import cloudscraper
 from aiocfscrape import CloudflareScraper
 from aiohttp_proxy import ProxyConnector
 from better_proxy import Proxy
 from pyrogram import Client
 from pyrogram.errors import Unauthorized, UserDeactivated, AuthKeyUnregistered, FloodWait
-from pyrogram.raw.types import InputBotAppShortName
 from pyrogram.raw.functions.messages import RequestAppWebView
-from bot.core.agents import generate_random_user_agent, fetch_version
+from pyrogram.raw.types import InputBotAppShortName
+
 from bot.config import settings
-import cloudscraper
-
-from bot.utils import logger
+from bot.core.agents import generate_random_user_agent, fetch_version
 from bot.exceptions import InvalidSession
-from .headers import headers
-from random import randint
-import random
-import base64
+from bot.utils import logger
 from bot.utils.ps import check_base_url
-
+from .headers import headers
+from aiofile import AIOFile
 
 end_point = "https://tonclayton.fun/api/cc82f330-6a6d-4deb-a15b-6a332a67ffa7"
 super_task = f"{end_point}/tasks/super-tasks"
@@ -68,6 +69,22 @@ class Tapper:
         self.wallet_memo = wallet_memonic
         self.black_list = [6, 2]
 
+    async def get_user_agent(self):
+        async with AIOFile('user_agents.json', 'r') as file:
+            content = await file.read()
+            user_agents = json.loads(content)
+
+        if self.session_name not in list(user_agents.keys()):
+            logger.info(f"{self.session_name} | Doesn't have user agent, Creating...")
+            ua = generate_random_user_agent(device_type='android', browser_type='chrome')
+            user_agents.update({self.session_name: ua})
+            async with AIOFile('user_agents.json', 'w') as file:
+                content = json.dumps(user_agents, indent=4)
+                await file.write(content)
+            return ua
+        else:
+            logger.info(f"{self.session_name} | Loading user agent from cache...")
+            return user_agents[self.session_name]
 
     async def get_tg_web_data(self, proxy: str | None) -> str | None:
         try:
@@ -792,7 +809,7 @@ class Tapper:
         access_token_created_time = 0
         proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
 
-        headers["User-Agent"] = generate_random_user_agent(device_type='android', browser_type='chrome')
+        headers["User-Agent"] = await self.get_user_agent()
         chrome_ver = fetch_version(headers['User-Agent'])
         headers['Sec-Ch-Ua'] = f'"Chromium";v="{chrome_ver}", "Android WebView";v="{chrome_ver}", "Not.A/Brand";v="99"'
         http_client = CloudflareScraper(headers=headers, connector=proxy_conn)
