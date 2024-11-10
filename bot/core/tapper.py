@@ -27,7 +27,7 @@ from bot.utils import logger
 from bot.utils.ps import check_base_url
 from .headers import headers
 
-end_point = "https://tonclayton.fun/api/cc82f330-6a6d-4deb-a15b-6a332a67ffa7"
+end_point = "https://tonclayton.fun/api/cc82f330-6a6d-4deb-a15b-6a335a67ffa7"
 super_task = f"{end_point}/tasks/super-tasks"
 auth = f"{end_point}/user/authorization"
 partner_tasks_api = f"{end_point}/tasks/partner-tasks"
@@ -493,9 +493,9 @@ class Tapper:
         http_client.headers['Origin'] = "https://tonclayton.fun"
         http_client.headers['Referer'] = "https://tonclayton.fun/games-layout/1024"
         try:
-            play_time = randint(80, 140)
-            start_delay = 14
-            end_delay = 20
+            play_time = randint(120, 150)
+            start_delay = 8
+            end_delay = 12
             i = 1
             j = 1
             current_high = 1
