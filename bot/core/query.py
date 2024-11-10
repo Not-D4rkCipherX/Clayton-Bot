@@ -396,9 +396,9 @@ class Tapper:
         http_client.headers['Origin'] = "https://tonclayton.fun"
         http_client.headers['Referer'] = "https://tonclayton.fun/games-layout/1024"
         try:
-            play_time = randint(80, 150)
-            start_delay = 15
-            end_delay = 25
+            play_time = randint(120, 150)
+            start_delay = 8
+            end_delay = 12
             i = 1
             j = 1
             current_high = 1
