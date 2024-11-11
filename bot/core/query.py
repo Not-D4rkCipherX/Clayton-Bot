@@ -23,7 +23,7 @@ from random import randint
 import random
 from bot.utils.ps import check_base_url
 
-end_point = "https://tonclayton.fun/api/cc82f330-6a6d-4deb-a15b-6a332a67ffa7"
+end_point = "https://tonclayton.fun/api/cc82f330-6a6d-4deb-a16b-6a335a67ffa7"
 super_task = f"{end_point}/tasks/super-tasks"
 auth = f"{end_point}/user/authorization"
 partner_tasks_api = f"{end_point}/tasks/partner-tasks"
