@@ -73,6 +73,7 @@ def get_proxies() -> list[Proxy]:
     if settings.USE_PROXY_FROM_FILE:
         with open(file="bot/config/proxies.txt", encoding="utf-8-sig") as file:
             proxies = [Proxy.from_str(proxy=row.strip()).as_url for row in file]
+            # print(proxies)
     else:
         proxies = []
 
@@ -105,7 +106,33 @@ async def get_user_agent(session_name):
         logger.info(f"{session_name} | Loading user agent from cache...")
         return user_agents[session_name]
 
+def get_un_used_proxy(used_proxies: list[Proxy]):
+    proxies = get_proxies()
+    for proxy in proxies:
+        if proxy not in used_proxies:
+            return proxy
+    return None
 
+async def get_proxy(session_name):
+    if settings.USE_PROXY_FROM_FILE:
+        async with AIOFile('proxy.json', 'r') as file:
+            content = await file.read()
+            proxies = json.loads(content)
+
+        if session_name not in list(proxies.keys()):
+            logger.info(f"{session_name} | Doesn't bind with any proxy, binding to a new proxy...")
+            used_proxies = [proxy for proxy in proxies.values()]
+            proxy = get_un_used_proxy(used_proxies)
+            proxies.update({session_name: proxy})
+            async with AIOFile('proxy.json', 'w') as file:
+                content = json.dumps(proxies, indent=4)
+                await file.write(content)
+            return proxy
+        else:
+            logger.info(f"{session_name} | Loading proxy from cache...")
+            return proxies[session_name]
+    else:
+        return None
 
 async def get_tg_clients() -> list[Client]:
     global tg_clients
@@ -203,9 +230,8 @@ async def process() -> None:
             await run_tasks(tg_clients=tg_clients)
         else:
             tg_clients = await get_tg_clients()
-            proxies = get_proxies()
             wallets = get_wallets()
-            await run_tapper1(tg_clients=tg_clients, proxies=proxies, wallets=wallets)
+            await run_tapper1(tg_clients=tg_clients, wallets=wallets)
     elif action == 3:
         ans = None
         while True:
@@ -218,14 +244,12 @@ async def process() -> None:
         if ans == "y":
             with open("data.txt", "r") as f:
                 query_ids = [line.strip() for line in f.readlines()]
-            # proxies = get_proxies()
             await run_tasks_query(query_ids)
         else:
             with open("data.txt", "r") as f:
                 query_ids = [line.strip() for line in f.readlines()]
-            proxies = get_proxies()
             wallets = get_wallets()
-            await run_query_tapper1(query_ids, proxies=proxies, wallets=wallets)
+            await run_query_tapper1(query_ids, wallets=wallets)
     elif action == 4:
         while True:
             count = input("Input number of wallet you want to create: ")
@@ -238,9 +262,6 @@ async def process() -> None:
 
 
 async def run_tasks_query(query_ids: list[str]):
-    proxies = get_proxies()
-    proxies_cycle = cycle(proxies) if proxies else None
-
     if settings.AUTO_CONNECT_WALLET:
 
         wallets_data = get_wallets()
@@ -262,7 +283,7 @@ async def run_tasks_query(query_ids: list[str]):
                 asyncio.create_task(
                     run_query_tapper(
                         query=query,
-                        proxy=next(proxies_cycle) if proxies_cycle else None,
+                        proxy=await get_proxy(fetch_username(query)),
                         wallet=wallet_i,
                         wallet_memonic=wallets_data.get(wallet_i),
                         ua=await get_user_agent(fetch_username(query))
@@ -276,7 +297,7 @@ async def run_tasks_query(query_ids: list[str]):
             asyncio.create_task(
                 run_query_tapper(
                     query=query,
-                    proxy=next(proxies_cycle) if proxies_cycle else None,
+                    proxy=await get_proxy(fetch_username(query)),
                     wallet=None,
                     wallet_memonic=None,
                     ua=await get_user_agent(fetch_username(query))
@@ -289,8 +310,6 @@ async def run_tasks_query(query_ids: list[str]):
 
 
 async def run_tasks(tg_clients: list[Client]):
-    proxies = get_proxies()
-    proxies_cycle = cycle(proxies) if proxies else None
     if settings.AUTO_CONNECT_WALLET:
 
         wallets_data = get_wallets()
@@ -312,7 +331,7 @@ async def run_tasks(tg_clients: list[Client]):
                 asyncio.create_task(
                     run_tapper(
                         tg_client=tg_client,
-                        proxy=next(proxies_cycle) if proxies_cycle else None,
+                        proxy=await get_proxy(tg_client.name),
                         wallet=wallet_i,
                         wallet_memonic=wallets_data.get(wallet_i),
                         ua=await get_user_agent(tg_client.name)
@@ -327,7 +346,7 @@ async def run_tasks(tg_clients: list[Client]):
                 asyncio.create_task(
                     run_tapper(
                         tg_client=tg_client,
-                        proxy=next(proxies_cycle) if proxies_cycle else None,
+                        proxy=await get_proxy(tg_client.name),
                         wallet=None,
                         wallet_memonic=None,
                         ua=await get_user_agent(tg_client.name)
