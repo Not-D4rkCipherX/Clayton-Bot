@@ -3,7 +3,6 @@ import base64
 import json
 import sys
 import traceback
-from itertools import cycle
 from time import time
 from urllib.parse import unquote
 
@@ -22,6 +21,7 @@ from .headers import headers
 from random import randint
 import random
 from bot.utils.ps import check_base_url
+from bot.utils import launcher as lc
 
 end_point = "https://tonclayton.fun/api/cc82f330-6a6d-4deb-a16b-6a335a67ffa7"
 super_task = f"{end_point}/tasks/super-tasks"
@@ -934,9 +934,7 @@ def fetch_username(query):
         logger.warning(f"Invaild query: {query}")
         sys.exit()
 
-async def run_query_tapper1(querys: list[str], proxies, wallets):
-    proxies_cycle = cycle(proxies) if proxies else None
-
+async def run_query_tapper1(querys: list[str], wallets):
     while True:
         if settings.AUTO_CONNECT_WALLET:
             wallets_list = list(wallets.keys())
@@ -954,7 +952,7 @@ async def run_query_tapper1(querys: list[str], proxies, wallets):
                     wallet_i = wallets_list[wallet_index]
                     wallet_memonic = wallets[wallet_i]
                 try:
-                    await Tapper(query=query, multi_thread=False, wallet=wallet_i, wallet_memonic=wallet_memonic).run(next(proxies_cycle) if proxies_cycle else None,
+                    await Tapper(query=query, multi_thread=False, wallet=wallet_i, wallet_memonic=wallet_memonic).run(proxy=await lc.get_proxy(fetch_username(query)),
                                                                                                                       ua=await get_user_agent(fetch_username(query)))
                 except InvalidSession:
                     logger.error(f"{query} is Invalid ")
@@ -965,7 +963,7 @@ async def run_query_tapper1(querys: list[str], proxies, wallets):
         else:
             for query in querys:
                 try:
-                    await Tapper(query=query, multi_thread=True, wallet=None, wallet_memonic=None).run(next(proxies_cycle) if proxies_cycle else None,
+                    await Tapper(query=query, multi_thread=True, wallet=None, wallet_memonic=None).run(proxy=await lc.get_proxy(fetch_username(query)),
                                                                                                        ua=await get_user_agent(fetch_username(query)))
                 except InvalidSession:
                     logger.error(f"Invalid Query: {query}")

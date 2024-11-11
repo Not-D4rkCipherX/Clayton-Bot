@@ -4,7 +4,6 @@ import json
 import random
 import sys
 import traceback
-from itertools import cycle
 from random import randint
 from time import time
 from urllib.parse import unquote
@@ -26,6 +25,7 @@ from bot.exceptions import InvalidSession
 from bot.utils import logger
 from bot.utils.ps import check_base_url
 from .headers import headers
+from bot.utils import launcher as lc
 
 end_point = "https://tonclayton.fun/api/cc82f330-6a6d-4deb-a16b-6a335a67ffa7"
 super_task = f"{end_point}/tasks/super-tasks"
@@ -1017,8 +1017,7 @@ async def get_user_agent(session_name):
         logger.info(f"{session_name} | Loading user agent from cache...")
         return user_agents[session_name]
 
-async def run_tapper1(tg_clients: list[Client], proxies, wallets):
-    proxies_cycle = cycle(proxies) if proxies else None
+async def run_tapper1(tg_clients: list[Client], wallets):
     while True:
         if settings.AUTO_CONNECT_WALLET:
             wallets_list = list(wallets.keys())
@@ -1036,7 +1035,7 @@ async def run_tapper1(tg_clients: list[Client], proxies, wallets):
                     wallet_i = wallets_list[wallet_index]
                     wallet_memonic = wallets[wallet_i]
                 try:
-                    await Tapper(tg_client=tg_client, multi_thread=False, wallet=wallet_i, wallet_memonic=wallet_memonic).run(next(proxies_cycle) if proxies_cycle else None, ua=await get_user_agent(tg_client.name))
+                    await Tapper(tg_client=tg_client, multi_thread=False, wallet=wallet_i, wallet_memonic=wallet_memonic).run(proxy=await lc.get_proxy(tg_client.name), ua=await get_user_agent(tg_client.name))
                 except InvalidSession:
                     logger.error(f"{tg_client.name} | Invalid Session")
 
@@ -1047,7 +1046,7 @@ async def run_tapper1(tg_clients: list[Client], proxies, wallets):
             for tg_client in tg_clients:
                 try:
                     await Tapper(tg_client=tg_client, multi_thread=False, wallet=None,
-                                 wallet_memonic=None).run(next(proxies_cycle) if proxies_cycle else None, ua=await get_user_agent(tg_client.name))
+                                 wallet_memonic=None).run(proxy=await lc.get_proxy(tg_client.name), ua=await get_user_agent(tg_client.name))
                 except InvalidSession:
                     logger.error(f"{tg_client.name} | Invalid Session")
 
