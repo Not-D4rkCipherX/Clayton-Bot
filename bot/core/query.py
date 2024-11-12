@@ -904,9 +904,10 @@ async def run_query_tapper(query: str, proxy: str | None, wallet: str | None, wa
         sleep_ = randint(15, 60)
         logger.info(f" start after {sleep_}s")
         await asyncio.sleep(sleep_)
-        await Tapper(query=query, multi_thread=False, wallet=wallet, wallet_memonic=wallet_memonic).run(proxy=proxy, ua=ua)
+        await Tapper(query=query, multi_thread=True, wallet=wallet, wallet_memonic=wallet_memonic).run(proxy=proxy, ua=ua)
     except InvalidSession:
         logger.error(f"Invalid Query: {query}")
+        traceback.print_exc()
 
 async def get_user_agent(session_name):
     async with AIOFile('user_agents.json', 'r') as file:
@@ -932,7 +933,8 @@ def fetch_username(query):
         return json_data['username']
     except:
         logger.warning(f"Invaild query: {query}")
-        sys.exit()
+        traceback.print_exc()
+        
 
 async def run_query_tapper1(querys: list[str], wallets):
     while True:
@@ -963,7 +965,7 @@ async def run_query_tapper1(querys: list[str], wallets):
         else:
             for query in querys:
                 try:
-                    await Tapper(query=query, multi_thread=True, wallet=None, wallet_memonic=None).run(proxy=await lc.get_proxy(fetch_username(query)),
+                    await Tapper(query=query, multi_thread=False, wallet=None, wallet_memonic=None).run(proxy=await lc.get_proxy(fetch_username(query)),
                                                                                                        ua=await get_user_agent(fetch_username(query)))
                 except InvalidSession:
                     logger.error(f"Invalid Query: {query}")
