@@ -28,22 +28,20 @@ def get_used_wallets():
 
 
 def generate_wallets(count):
-    with open('wallet.json', 'r') as file:
+    with open("wallet.json", "r") as file:
         wallets = json.load(file)
 
     for i in range(1, count + 1):
-        mnemonics, pub_k, priv_k, wallet = Wallets.create(WalletVersionEnum.v4r2, workchain=0)
+        mnemonics, pub_k, priv_k, wallet = Wallets.create(
+            WalletVersionEnum.v4r2, workchain=0
+        )
         wallet_address = wallet.address.to_string(True, True, False)
 
-        wallets.update(
-            {
-                wallet_address: " ".join(mnemonics)
-            }
-        )
+        wallets.update({wallet_address: " ".join(mnemonics)})
 
         logger.success(f"Created wallet {i}/{count}")
 
-    with open('wallet.json', 'w') as file:
+    with open("wallet.json", "w") as file:
         json.dump(wallets, file, indent=4)
 
 
@@ -79,32 +77,34 @@ def get_proxies() -> list[Proxy]:
 
     return proxies
 
+
 def fetch_username(query):
     try:
         fetch_data = unquote(query).split("user=")[1].split("&auth_date=")[0]
         json_data = json.loads(fetch_data)
-        return json_data['username']
+        return json_data["username"]
     except:
         logger.warning(f"Invaild query: {query}")
         sys.exit()
 
 
 async def get_user_agent(session_name):
-    async with AIOFile('user_agents.json', 'r') as file:
+    async with AIOFile("user_agents.json", "r") as file:
         content = await file.read()
         user_agents = json.loads(content)
 
     if session_name not in list(user_agents.keys()):
         logger.info(f"{session_name} | Doesn't have user agent, Creating...")
-        ua = generate_random_user_agent(device_type='android', browser_type='chrome')
+        ua = generate_random_user_agent(device_type="android", browser_type="chrome")
         user_agents.update({session_name: ua})
-        async with AIOFile('user_agents.json', 'w') as file:
+        async with AIOFile("user_agents.json", "w") as file:
             content = json.dumps(user_agents, indent=4)
             await file.write(content)
         return ua
     else:
         logger.info(f"{session_name} | Loading user agent from cache...")
         return user_agents[session_name]
+
 
 def get_un_used_proxy(used_proxies: list[Proxy]):
     proxies = get_proxies()
@@ -113,18 +113,21 @@ def get_un_used_proxy(used_proxies: list[Proxy]):
             return proxy
     return None
 
+
 async def get_proxy(session_name):
     if settings.USE_PROXY_FROM_FILE:
-        async with AIOFile('proxy.json', 'r') as file:
+        async with AIOFile("proxy.json", "r") as file:
             content = await file.read()
             proxies = json.loads(content)
 
         if session_name not in list(proxies.keys()):
-            logger.info(f"{session_name} | Doesn't bind with any proxy, binding to a new proxy...")
+            logger.info(
+                f"{session_name} | Doesn't bind with any proxy, binding to a new proxy..."
+            )
             used_proxies = [proxy for proxy in proxies.values()]
             proxy = get_un_used_proxy(used_proxies)
             proxies.update({session_name: proxy})
-            async with AIOFile('proxy.json', 'w') as file:
+            async with AIOFile("proxy.json", "w") as file:
                 content = json.dumps(proxies, indent=4)
                 await file.write(content)
             return proxy
@@ -133,6 +136,7 @@ async def get_proxy(session_name):
             return proxies[session_name]
     else:
         return None
+
 
 async def get_tg_clients() -> list[Client]:
     global tg_clients
@@ -166,7 +170,9 @@ def get_wallets():
             wallets = json.load(f)
 
         if len(wallets) == 0 and settings.AUTO_CONNECT_WALLET:
-            logger.warning("<yellow>TO CONNECT WALLET YOU MUST GENERATE WALLET USING OPTION 4 FIRST!</yellow>")
+            logger.warning(
+                "<yellow>TO CONNECT WALLET YOU MUST GENERATE WALLET USING OPTION 4 FIRST!</yellow>"
+            )
             sys.exit()
 
         need_to_del = []
@@ -182,20 +188,26 @@ def get_wallets():
             json.dump(wallets, f, indent=4)
         return wallets
     else:
-        logger.warning("<yellow>TO CONNECT WALLET YOU MUST GENERATE WALLET USING OPTION 4 FIRST!</yellow>")
+        logger.warning(
+            "<yellow>TO CONNECT WALLET YOU MUST GENERATE WALLET USING OPTION 4 FIRST!</yellow>"
+        )
         sys.exit()
 
 
 async def process() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--action", type=int, help="Action to perform")
+    parser.add_argument("-m", "--multithread", type=str, help="Enable multi-threading")
 
-    logger.info(f"Detected {len(get_session_names())} sessions | {len(get_proxies())} proxies")
+    logger.info(
+        f"Detected {len(get_session_names())} sessions | {len(get_proxies())} proxies"
+    )
 
     action = parser.parse_args().action
+    ans = parser.parse_args().multithread
 
     if not os.path.exists("user_agents.json"):
-        with open("user_agents.json", 'w') as file:
+        with open("user_agents.json", "w") as file:
             file.write("{}")
         logger.info("User agents file created successfully")
 
@@ -216,13 +228,13 @@ async def process() -> None:
     if action == 2:
         await register_sessions()
     elif action == 1:
-        ans = None
-        while True:
-            ans = input("> Do you want to run the bot with multi-thread? (y/n) ")
-            if ans not in ["y", "n"]:
-                logger.warning("Answer must be y or n")
-            else:
-                break
+        if ans is None:
+            while True:
+                ans = input("> Do you want to run the bot with multi-thread? (y/n) ")
+                if ans not in ["y", "n"]:
+                    logger.warning("Answer must be y or n")
+                else:
+                    break
 
         if ans == "y":
             tg_clients = await get_tg_clients()
@@ -268,7 +280,8 @@ async def run_tasks_query(query_ids: list[str]):
         wallets = list(get_wallets().keys())
         if len(wallets) < len(query_ids):
             logger.warning(
-                f"<yellow>Wallet not enough for all accounts please generate <red>{len(tg_clients) - len(wallets)}</red> wallets more!</yellow>")
+                f"<yellow>Wallet not enough for all accounts please generate <red>{len(tg_clients) - len(wallets)}</red> wallets more!</yellow>"
+            )
             await asyncio.sleep(3)
 
         wallet_index = 0
@@ -286,7 +299,7 @@ async def run_tasks_query(query_ids: list[str]):
                         proxy=await get_proxy(fetch_username(query)),
                         wallet=wallet_i,
                         wallet_memonic=wallets_data.get(wallet_i),
-                        ua=await get_user_agent(fetch_username(query))
+                        ua=await get_user_agent(fetch_username(query)),
                     )
                 )
             )
@@ -300,7 +313,7 @@ async def run_tasks_query(query_ids: list[str]):
                     proxy=await get_proxy(fetch_username(query)),
                     wallet=None,
                     wallet_memonic=None,
-                    ua=await get_user_agent(fetch_username(query))
+                    ua=await get_user_agent(fetch_username(query)),
                 )
             )
             for query in query_ids
@@ -316,7 +329,8 @@ async def run_tasks(tg_clients: list[Client]):
         wallets = list(get_wallets().keys())
         if len(wallets) < len(tg_clients):
             logger.warning(
-                f"<yellow>Wallet not enough for all accounts please generate <red>{len(tg_clients) - len(wallets)}</red> wallets more!</yellow>")
+                f"<yellow>Wallet not enough for all accounts please generate <red>{len(tg_clients) - len(wallets)}</red> wallets more!</yellow>"
+            )
             await asyncio.sleep(3)
 
         wallet_index = 0
@@ -334,7 +348,7 @@ async def run_tasks(tg_clients: list[Client]):
                         proxy=await get_proxy(tg_client.name),
                         wallet=wallet_i,
                         wallet_memonic=wallets_data.get(wallet_i),
-                        ua=await get_user_agent(tg_client.name)
+                        ua=await get_user_agent(tg_client.name),
                     )
                 )
             )
@@ -349,7 +363,7 @@ async def run_tasks(tg_clients: list[Client]):
                         proxy=await get_proxy(tg_client.name),
                         wallet=None,
                         wallet_memonic=None,
-                        ua=await get_user_agent(tg_client.name)
+                        ua=await get_user_agent(tg_client.name),
                     )
                 )
             )

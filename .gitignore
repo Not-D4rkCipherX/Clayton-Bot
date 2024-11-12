@@ -1,0 +1,7 @@
+.env
+used_wallets.json
+user_agents.json
+wallet.json
+**/__pycache__
+bot/config/proxies.txt
+sessions
