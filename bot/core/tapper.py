@@ -862,20 +862,14 @@ class Tapper:
                     user_data = f"""
                     ====<cyan>{self.session_name}</cyan>====
                     DAILY REWARD:
-                     |
-                     --- Daily reward claimable: <yellow>{can_claim_daily}</yellow>
-                     |
-                     --- Streak: <cyan>{auth_data['dailyReward']['current_day']}</cyan>
-                    
+                      ├──  Daily reward claimable: <yellow>{can_claim_daily}</yellow>
+                      └── Streak: <cyan>{auth_data['dailyReward']['current_day']}</cyan>
+    
                     USER INFO:
-                     |
-                     --- Clay balance: <cyan>{user['tokens']}</cyan>
-                     |
-                     --- Level: <cyan>{user['level']}</cyan> - Current XP: <red>{user['current_xp']}</red>
-                     |
-                     --- Game attempts: <cyan>{user['daily_attempts']}</cyan>
-                     |
-                     --- Wallet: <cyan>{user['wallet']}</cyan>
+                      ├──  Clay balance: <cyan>{user['tokens']}</cyan>
+                      ├── Level: <cyan>{user['level']}</cyan> - Current XP: <red>{user['current_xp']}</red>
+                      ├── Game attempts: <cyan>{user['daily_attempts']}</cyan>
+                      └── Wallet: <cyan>{user['wallet']}</cyan>
                     """
 
                     logger.info(user_data)
