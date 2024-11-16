@@ -48,7 +48,14 @@ claim_achievements_api = f"{end_point}/user/achievements/claim/"
 class Tapper:
     def __init__(self, query: str, multi_thread: bool, wallet: str | None, wallet_memonic: str | None):
         self.query = query
-        fetch_data = unquote(self.query).split("user=")[1].split("&auth_date=")[0]
+        try:
+            fetch_data = unquote(self.query).split("user=")[1].split("&chat_instance=")[0]
+        except:
+            try:
+                fetch_data = unquote(self.query).split("user=")[1].split("&auth_date=")[0]
+            except:
+                logger.warning(f"Invaild query: {query}")
+                sys.exit()
         json_data = json.loads(fetch_data)
         self.session_name = json_data['username']
         self.first_name = ''
@@ -947,6 +954,7 @@ async def run_query_tapper1(querys: list[str], wallets):
                 else:
                     wallet_i = wallets_list[wallet_index]
                     wallet_memonic = wallets[wallet_i]
+                    wallet_index += 1
                 try:
                     await Tapper(query=query, multi_thread=False, wallet=wallet_i, wallet_memonic=wallet_memonic).run(proxy=await lc.get_proxy(fetch_username(query)),
                                                                                                                       ua=await get_user_agent(fetch_username(query)))
