@@ -61,7 +61,7 @@ class Tapper:
                     json_data = json.loads(fetch_data)
                 except:
                     logger.warning(f"Invaild query: {query}")
-                    sys.exit()
+                    return
         self.session_name = json_data['username']
         self.first_name = ''
         self.last_name = ''
@@ -949,7 +949,7 @@ def fetch_username(query):
                 return json_data['username']
             except:
                 logger.warning(f"Invaild query: {query}")
-                sys.exit()
+                return ""
         
 
 async def run_query_tapper1(querys: list[str], wallets):
