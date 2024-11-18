@@ -11,7 +11,6 @@ from urllib.parse import unquote
 import aiohttp
 import cloudscraper
 from aiocfscrape import CloudflareScraper
-from aiofile import AIOFile
 from aiohttp_proxy import ProxyConnector
 from better_proxy import Proxy
 from pyrogram import Client
@@ -20,14 +19,14 @@ from pyrogram.raw.functions.messages import RequestAppWebView
 from pyrogram.raw.types import InputBotAppShortName
 
 from bot.config import settings
-from bot.core.agents import fetch_version, generate_random_user_agent
+from bot.core.agents import fetch_version
 from bot.exceptions import InvalidSession
 from bot.utils import logger
 from bot.utils.ps import check_base_url
 from .headers import headers
 from bot.utils import launcher as lc
 
-end_point = "https://tonclayton.fun/api/cc82f530-6a7d-4deb-a16b-6a335a67ffa7"
+end_point = "https://tonclayton.fun/api/cc82M530-6a7d-4deb-a16b-6a335a67ffa7"
 super_task = f"{end_point}/tasks/super-tasks"
 auth = f"{end_point}/user/authorization"
 partner_tasks_api = f"{end_point}/tasks/partner-tasks"
@@ -994,23 +993,6 @@ async def run_tapper(tg_client: Client, proxy: str | None, wallet: str | None, w
     except InvalidSession:
         logger.error(f"{tg_client.name} | Invalid Session")
 
-async def get_user_agent(session_name):
-    async with AIOFile('user_agents.json', 'r') as file:
-        content = await file.read()
-        user_agents = json.loads(content)
-
-    if session_name not in list(user_agents.keys()):
-        logger.info(f"{session_name} | Doesn't have user agent, Creating...")
-        ua = generate_random_user_agent(device_type='android', browser_type='chrome')
-        user_agents.update({session_name: ua})
-        async with AIOFile('user_agents.json', 'w') as file:
-            content = json.dumps(user_agents, indent=4)
-            await file.write(content)
-        return ua
-    else:
-        logger.info(f"{session_name} | Loading user agent from cache...")
-        return user_agents[session_name]
-
 async def run_tapper1(tg_clients: list[Client], wallets):
     while True:
         if settings.AUTO_CONNECT_WALLET:
@@ -1030,7 +1012,7 @@ async def run_tapper1(tg_clients: list[Client], wallets):
                     wallet_memonic = wallets[wallet_i]
                     wallet_index += 1
                 try:
-                    await Tapper(tg_client=tg_client, multi_thread=False, wallet=wallet_i, wallet_memonic=wallet_memonic).run(proxy=await lc.get_proxy(tg_client.name), ua=await get_user_agent(tg_client.name))
+                    await Tapper(tg_client=tg_client, multi_thread=False, wallet=wallet_i, wallet_memonic=wallet_memonic).run(proxy=await lc.get_proxy(tg_client.name), ua=await lc.get_user_agent(tg_client.name))
                 except InvalidSession:
                     logger.error(f"{tg_client.name} | Invalid Session")
 
@@ -1041,7 +1023,7 @@ async def run_tapper1(tg_clients: list[Client], wallets):
             for tg_client in tg_clients:
                 try:
                     await Tapper(tg_client=tg_client, multi_thread=False, wallet=None,
-                                 wallet_memonic=None).run(proxy=await lc.get_proxy(tg_client.name), ua=await get_user_agent(tg_client.name))
+                                 wallet_memonic=None).run(proxy=await lc.get_proxy(tg_client.name), ua=await lc.get_user_agent(tg_client.name))
                 except InvalidSession:
                     logger.error(f"{tg_client.name} | Invalid Session")
 
