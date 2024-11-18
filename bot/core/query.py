@@ -917,33 +917,6 @@ async def run_query_tapper(query: str, proxy: str | None, wallet: str | None, wa
         logger.error(f"Invalid Query: {query}")
         traceback.print_exc()
 
-async def get_user_agent(session_name):
-    async with AIOFile('user_agents.json', 'r') as file:
-        content = await file.read()
-        user_agents = json.loads(content)
-
-    if session_name not in list(user_agents.keys()):
-        logger.info(f"{session_name} | Doesn't have user agent, Creating...")
-        ua = generate_random_user_agent(device_type='android', browser_type='chrome')
-        user_agents.update({session_name: ua})
-        async with AIOFile('user_agents.json', 'w') as file:
-            content = json.dumps(user_agents, indent=4)
-            await file.write(content)
-        return ua
-    else:
-        logger.info(f"{session_name} | Loading user agent from cache...")
-        return user_agents[session_name]
-
-def fetch_username(query):
-    try:
-        fetch_data = unquote(query).split("user=")[1].split("&auth_date=")[0]
-        json_data = json.loads(fetch_data)
-        return json_data['username']
-    except:
-        logger.warning(f"Invaild query: {query}")
-        traceback.print_exc()
-        
-
 async def run_query_tapper1(querys: list[str], wallets):
     while True:
         if settings.AUTO_CONNECT_WALLET:
@@ -963,8 +936,8 @@ async def run_query_tapper1(querys: list[str], wallets):
                     wallet_memonic = wallets[wallet_i]
                     wallet_index += 1
                 try:
-                    await Tapper(query=query, multi_thread=False, wallet=wallet_i, wallet_memonic=wallet_memonic).run(proxy=await lc.get_proxy(fetch_username(query)),
-                                                                                                                      ua=await get_user_agent(fetch_username(query)))
+                    await Tapper(query=query, multi_thread=False, wallet=wallet_i, wallet_memonic=wallet_memonic).run(proxy=await lc.get_proxy(lc.fetch_username(query)),
+                                                                                                                      ua=await lc.get_user_agent(lc.fetch_username(query)))
                 except InvalidSession:
                     logger.error(f"{query} is Invalid ")
 
@@ -974,8 +947,8 @@ async def run_query_tapper1(querys: list[str], wallets):
         else:
             for query in querys:
                 try:
-                    await Tapper(query=query, multi_thread=False, wallet=None, wallet_memonic=None).run(proxy=await lc.get_proxy(fetch_username(query)),
-                                                                                                       ua=await get_user_agent(fetch_username(query)))
+                    await Tapper(query=query, multi_thread=False, wallet=None, wallet_memonic=None).run(proxy=await lc.get_proxy(lc.fetch_username(query)),
+                                                                                                       ua=await lc.get_user_agent(lc.fetch_username(query)))
                 except InvalidSession:
                     logger.error(f"Invalid Query: {query}")
 
