@@ -23,7 +23,7 @@ import random
 from bot.utils.ps import check_base_url
 from bot.utils import launcher as lc
 
-end_point = "https://tonclayton.fun/api/cc82f530-6a7d-4deb-a16b-6a335a67ffa7"
+end_point = "https://tonclayton.fun/api/cc82M530-6a7d-4deb-a16b-6a335a67ffa7"
 super_task = f"{end_point}/tasks/super-tasks"
 auth = f"{end_point}/user/authorization"
 partner_tasks_api = f"{end_point}/tasks/partner-tasks"
@@ -936,22 +936,12 @@ async def get_user_agent(session_name):
 
 def fetch_username(query):
     try:
-        fetch_data = unquote(query).split("user=")[1].split("&chat_instance=")[0]
+        fetch_data = unquote(query).split("user=")[1].split("&auth_date=")[0]
         json_data = json.loads(fetch_data)
         return json_data['username']
     except:
-        try:
-            fetch_data = unquote(query).split("user=")[1].split("&auth_date=")[0]
-            json_data = json.loads(fetch_data)
-            return json_data['username']
-        except:
-            try:
-                fetch_data = unquote(unquote(query)).split("user=")[1].split("&auth_date=")[0]
-                json_data = json.loads(fetch_data)
-                return json_data['username']
-            except:
-                logger.warning(f"Invaild query: {query}")
-                return ""
+        logger.warning(f"Invaild query: {query}")
+        traceback.print_exc()
         
 
 async def run_query_tapper1(querys: list[str], wallets):
