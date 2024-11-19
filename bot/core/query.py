@@ -1,7 +1,6 @@
 import asyncio
 import base64
 import json
-import sys
 import traceback
 from time import time
 from urllib.parse import unquote
@@ -9,10 +8,9 @@ from urllib.parse import unquote
 import aiohttp
 import cloudscraper
 from aiocfscrape import CloudflareScraper
-from aiofile import AIOFile
 from aiohttp_proxy import ProxyConnector
 from better_proxy import Proxy
-from bot.core.agents import generate_random_user_agent, fetch_version
+from bot.core.agents import fetch_version
 from bot.config import settings
 
 from bot.utils import logger
@@ -23,7 +21,7 @@ import random
 from bot.utils.ps import check_base_url
 from bot.utils import launcher as lc
 
-end_point = "https://tonclayton.fun/api/cc82M530-6a7d-4deb-a16b-6a335a67ffa7"
+end_point = "https://tonclayton.fun/api/cT82M530-6a7d-4deb-a16b-6a335a67ffa7"
 super_task = f"{end_point}/tasks/super-tasks"
 auth = f"{end_point}/user/authorization"
 partner_tasks_api = f"{end_point}/tasks/partner-tasks"
