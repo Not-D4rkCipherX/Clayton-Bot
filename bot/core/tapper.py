@@ -26,7 +26,7 @@ from bot.utils.ps import check_base_url
 from .headers import headers
 from bot.utils import launcher as lc
 
-end_point = "https://tonclayton.fun/api/cT82M530-6a6d-4deb-a16b-6a335a67ffa6"
+end_point = "https://tonclayton.fun/api/cT83M530-6a6d-4deb-a16b-6a335a67ffb6"
 super_task = f"{end_point}/tasks/super-tasks"
 auth = f"{end_point}/user/authorization"
 partner_tasks_api = f"{end_point}/tasks/partner-tasks"
