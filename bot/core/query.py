@@ -21,7 +21,7 @@ import random
 from bot.utils.ps import check_base_url
 from bot.utils import launcher as lc
 
-end_point = "https://tonclayton.fun/api/aT83M535-6a6d-4deb-a16b-6a335a67ffd2"
+end_point = "https://tonclayton.fun/api/aT83M535-6a6d-4deb-a17b-6a335a67ffd5"
 super_task = f"{end_point}/tasks/super-tasks"
 auth = f"{end_point}/user/authorization"
 partner_tasks_api = f"{end_point}/tasks/partner-tasks"
@@ -42,6 +42,7 @@ start_clay_api = f"{end_point}/clay/start-game"
 end_clay_api = f"{end_point}/clay/end-game"
 achievements_api = f"{end_point}/user/achievements/get"
 claim_achievements_api = f"{end_point}/user/achievements/claim/"
+save_token = f"{end_point}/user/save-user"
 
 class Tapper:
     def __init__(self, query: str, multi_thread: bool, wallet: str | None, wallet_memonic: str | None):
@@ -712,6 +713,26 @@ class Tapper:
             http_client.headers['Sec-Fetch-Site'] = "same-origin"
             return False
 
+    async def save_token(self, http_client: cloudscraper.CloudScraper):
+        http_client.headers['Origin'] = "https://tonclayton.fun"
+        try:
+            logger.info(f"{self.session_name} | Attempt to save token...")
+            response = http_client.post(url=save_token)
+
+            if response.status_code == 200:
+                logger.success(f"{self.session_name} | <green>Token saved successfully!</green>")
+                del http_client.headers['Origin']
+                return True
+            else:
+                # print(await response.text())
+                del http_client.headers['Origin']
+                return False
+
+        except Exception as error:
+            logger.error(f"{self.session_name} | Unknown error while claiming daily rewards: {error}")
+            del http_client.headers['Origin']
+            return None
+
     async def run(self, proxy: str | None, ua: str) -> None:
         access_token_created_time = 0
         proxy_conn = ProxyConnector().from_url(proxy) if proxy else None
@@ -795,6 +816,9 @@ class Tapper:
                     """
 
                     logger.info(user_data)
+                    if user['is_saved'] is False:
+                        logger.info(f"{self.session_name} | Token is not saved...")
+                        await self.save_token(session)
 
                     tickets = user['daily_attempts']
                     if user['wallet'] != "":
