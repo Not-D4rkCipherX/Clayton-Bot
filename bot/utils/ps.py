@@ -8,7 +8,7 @@ session = cloudscraper.create_scraper()
 baseUrl = "https://tonclayton.fun/api"
 pattern = r'\b\w+\s*=\s*"([^"]+)"'
 
-version = "1.1.4"
+version = "1.1.5"
 def get_main_js_format(base_url):
     try:
         response = session.get(base_url)
