@@ -26,7 +26,7 @@ from bot.utils.ps import check_base_url
 from .headers import headers
 from bot.utils import launcher as lc
 
-end_point = "https://tonclayton.fun/api/aT83M535-6a6d-4deb-a17b-6a335a67ffd5"
+end_point = "https://tonclayton.fun/api/aT83M535-616d-5deb-a17b-6a335a67ffd5"
 super_task = f"{end_point}/tasks/super-tasks"
 auth = f"{end_point}/user/authorization"
 partner_tasks_api = f"{end_point}/tasks/partner-tasks"
@@ -894,9 +894,10 @@ class Tapper:
 
                     logger.info(user_data)
 
-                    if user['is_saved'] is False:
-                        logger.info(f"{self.session_name} | Token is not saved...")
-                        await self.save_token(session)
+                    if "is_saved" in list(user.keys()):
+                        if user['is_saved'] is False:
+                            logger.info(f"{self.session_name} | Token is not saved...")
+                            await self.save_token(session)
 
                     tickets = user['daily_attempts']
                     if user['wallet'] != "":
@@ -929,7 +930,7 @@ class Tapper:
                         self.black_list.append(7)
 
 
-                    if len(settings.GAMES_TO_PLAY) > 0:
+                    if len(settings.GAMES_TO_PLAY) > 0 and settings.AUTO_GAME:
                         while tickets > 0:
                             for game in settings.GAMES_TO_PLAY:
                                 if tickets <= 0:
