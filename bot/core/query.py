@@ -21,7 +21,7 @@ import random
 from bot.utils.ps import check_base_url
 from bot.utils import launcher as lc
 
-end_point = "https://tonclayton.fun/api/aT83M535-616d-5deb-a17b-6a335a67ffd5"
+end_point = "https://tonclayton.fun/api/aT83M535-616h-5deb-a17b-6a335a67ffd5"
 super_task = f"{end_point}/tasks/super-tasks"
 auth = f"{end_point}/user/authorization"
 partner_tasks_api = f"{end_point}/tasks/partner-tasks"
