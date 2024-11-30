@@ -946,12 +946,12 @@ class Tapper:
                                         logger.warning(
                                             f"{self.session_name} | Failed to complete game: <yellow>{game}</yellow>!")
                                     tickets -= 1
-                                # elif game == "clayball":
-                                #     a = await self.play_clay(http_client)
-                                #     if a is False:
-                                #         logger.warning(
-                                #             f"{self.session_name} | Failed to complete game: <yellow>{game}</yellow>!")
-                                #     tickets -= 1
+                                elif game == "clayball":
+                                    a = await self.play_clay(http_client)
+                                    if a is False:
+                                        logger.warning(
+                                            f"{self.session_name} | Failed to complete game: <yellow>{game}</yellow>!")
+                                    tickets -= 1
                                 else:
                                     logger.warning(f"{self.session_name} | <yellow>Unknown game: {game}</yellow>")
 
