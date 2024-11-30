@@ -6,7 +6,7 @@ from time import time
 from urllib.parse import unquote
 
 import aiohttp
-import cloudscraper
+import cloudscraper 
 from aiocfscrape import CloudflareScraper
 from aiohttp_proxy import ProxyConnector
 from better_proxy import Proxy
