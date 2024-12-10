@@ -6,7 +6,7 @@ from time import time
 from urllib.parse import unquote
 
 import aiohttp
-import cloudscraper 
+import cloudscraper
 from aiocfscrape import CloudflareScraper
 from aiohttp_proxy import ProxyConnector
 from better_proxy import Proxy
@@ -43,6 +43,8 @@ end_clay_api = f"{end_point}/clay/end-game"
 achievements_api = f"{end_point}/user/achievements/get"
 claim_achievements_api = f"{end_point}/user/achievements/claim/"
 save_token = f"{end_point}/user/save-user"
+unclaimed_task_api = f"{end_point}/tasks/unclaimed"
+
 
 class Tapper:
     def __init__(self, query: str, multi_thread: bool, wallet: str | None, wallet_memonic: str | None):
@@ -798,6 +800,8 @@ class Tapper:
                         return
 
                     partner_tasks = await self.get_partner_tasks(session)
+
+                    session.post(unclaimed_task_api)
 
                     can_claim_daily = auth_data['dailyReward']['can_claim_today']
                     user = auth_data['user']
